@@ -75,14 +75,19 @@
     </section>
 
     <div class="layout">
+      <div class="main-col">
+      <!-- Σελίδα άρθρου (εμφανίζεται όταν πατηθεί μια είδηση) -->
+      <section id="article-view" hidden></section>
+
       <!-- News feed -->
-      <section>
+      <section id="feed">
         <div class="section-head">
           <h2 id="feed-title">Τελευταίες Ειδήσεις</h2>
         </div>
         <div class="grid" id="news-grid"></div>
         <p class="empty" id="empty" hidden>Δεν βρέθηκαν ειδήσεις.</p>
       </section>
+      </div>
 
       <!-- Sidebar -->
       <aside class="sidebar">

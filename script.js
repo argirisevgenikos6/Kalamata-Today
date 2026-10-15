@@ -38,43 +38,49 @@ function renderHero() {
   if (!news.length) { hero.innerHTML = ""; return; }
   const [main, ...side] = frontPage();
   hero.innerHTML = `
-    <article class="hero-main">
+    <a class="hero-main" href="${link(main)}">
       <div class="img" style="${bg(main)}"></div>
       <div class="overlay">
         <span class="tag">${esc(main.category)}</span>
         <h1>${esc(main.title)}</h1>
         <p>${esc(main.excerpt)}</p>
       </div>
-    </article>
+    </a>
     <div class="hero-side">
       ${side.map((n) => `
-        <article>
+        <a href="${link(n)}">
           <div class="img" style="${bg(n)}"></div>
           <div class="overlay">
             <span class="tag">${esc(n.category)}</span>
             <h3>${esc(n.title)}</h3>
           </div>
-        </article>`).join("")}
+        </a>`).join("")}
     </div>`;
 }
 
-function renderGrid(items) {
-  document.getElementById("news-grid").innerHTML = items.map((n) => `
-    <article class="card">
+// Κάθε είδηση έχει τη δική της διεύθυνση: #arthro-<id>
+const link = (n) => `#arthro-${encodeURIComponent(n.id)}`;
+const meta = (n) => `${timeAgo(n.date)}${n.views ? ` · ${n.views.toLocaleString("el-GR")} προβολές` : ""}`;
+
+const card = (n) => `
+    <a class="card" href="${link(n)}">
       <div class="card-img"><div class="img" style="${bg(n)}"></div></div>
       <div class="card-body">
         <span class="tag">${esc(n.category)}</span>
         <h3>${esc(n.title)}</h3>
         <p>${esc(n.excerpt)}</p>
-        <div class="meta">${timeAgo(n.date)}${n.views ? ` · ${n.views.toLocaleString("el-GR")} προβολές` : ""}</div>
+        <div class="meta">${meta(n)}</div>
       </div>
-    </article>`).join("");
+    </a>`;
+
+function renderGrid(items) {
+  document.getElementById("news-grid").innerHTML = items.map(card).join("");
   document.getElementById("empty").hidden = items.length > 0;
 }
 
 function renderPopular() {
   const top = [...news].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
-  document.getElementById("popular").innerHTML = top.map((n) => `<li>${esc(n.title)}</li>`).join("");
+  document.getElementById("popular").innerHTML = top.map((n) => `<li><a href="${link(n)}">${esc(n.title)}</a></li>`).join("");
 }
 
 function renderTicker() {
@@ -95,20 +101,85 @@ function applyFilters() {
   renderGrid(filtered);
 }
 
+// ---------- Σελίδα άρθρου ----------
+const SITE_TITLE = document.title;
+
+function showList() {
+  document.title = SITE_TITLE;
+  document.getElementById("article-view").hidden = true;
+  document.getElementById("feed").hidden = false;
+  document.getElementById("hero").hidden = currentCat !== "all";
+  document.getElementById("weather-panel").hidden = currentCat !== "Καιρός";
+  applyFilters();
+}
+
+function showArticle(n) {
+  document.title = `${n.title} | Kalamata Today`;
+  document.getElementById("hero").hidden = true;
+  document.getElementById("weather-panel").hidden = true;
+  document.getElementById("feed").hidden = true;
+
+  const sameCat = news.filter((x) => x.id !== n.id && x.category === n.category);
+  const others = news.filter((x) => x.id !== n.id && x.category !== n.category);
+  const related = [...sameCat, ...others].slice(0, 3);
+
+  const view = document.getElementById("article-view");
+  view.innerHTML = `
+    <a href="#" class="back">← Όλες οι ειδήσεις</a>
+    <article class="article">
+      <span class="tag">${esc(n.category)}</span>
+      <h1>${esc(n.title)}</h1>
+      <div class="meta">${meta(n)}</div>
+      <div class="article-img"><div class="img" style="${bg(n)}"></div></div>
+      <p class="lead">${esc(n.excerpt)}</p>
+      ${(n.body || []).map((p) => `<p>${esc(p)}</p>`).join("")}
+    </article>
+    ${related.length ? `
+    <div class="section-head related-head"><h2>Δείτε επίσης</h2></div>
+    <div class="grid">${related.map(card).join("")}</div>` : ""}`;
+  view.hidden = false;
+  window.scrollTo(0, 0);
+}
+
+function route() {
+  const m = location.hash.match(/^#arthro-(.+)$/);
+  const id = m && decodeURIComponent(m[1]);
+  const article = id && news.find((n) => String(n.id) === id);
+  if (article) showArticle(article);
+  else showList();
+}
+
+// Επιστροφή στη λίστα (καθαρίζει το #arthro-… από τη διεύθυνση)
+function goToList() {
+  if (location.hash) history.pushState(null, "", location.pathname + location.search);
+  route();
+}
+
+window.addEventListener("hashchange", route);
+
 document.querySelectorAll(".nav a").forEach((link) => {
   link.addEventListener("click", (e) => {
     e.preventDefault();
     document.querySelector(".nav a.active").classList.remove("active");
     link.classList.add("active");
     currentCat = link.dataset.cat;
-    document.getElementById("hero").hidden = currentCat !== "all";
-    document.getElementById("weather-panel").hidden = currentCat !== "Καιρός";
     document.getElementById("nav").classList.remove("open");
-    applyFilters();
+    goToList();
   });
 });
 
-document.getElementById("search").addEventListener("input", applyFilters);
+document.querySelectorAll(".logo").forEach((logo) => {
+  logo.addEventListener("click", (e) => {
+    e.preventDefault();
+    document.querySelector('.nav a[data-cat="all"]').click();
+    window.scrollTo(0, 0);
+  });
+});
+
+document.getElementById("search").addEventListener("input", () => {
+  if (!document.getElementById("article-view").hidden) goToList();
+  else applyFilters();
+});
 
 const toggle = document.querySelector(".menu-toggle");
 toggle.addEventListener("click", () => {
@@ -224,7 +295,7 @@ fetch(`news.json?v=${Date.now()}`)
   })
   .finally(() => {
     renderHero();
-    applyFilters();
+    route();
     renderPopular();
     renderTicker();
   });

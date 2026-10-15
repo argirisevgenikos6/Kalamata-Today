@@ -308,6 +308,7 @@ function startEdit(id) {
   removeImage = false;
   $("f-title").value = n.title;
   $("f-excerpt").value = n.excerpt;
+  $("f-body").value = (n.body || []).join("\n\n");
   $("f-category").value = n.category;
   $("f-date").value = toLocalInput(new Date(n.date));
   $("f-featured").value = n.featured || "";
@@ -339,6 +340,8 @@ $("news-form").addEventListener("submit", (e) => {
   const fields = {
     title: $("f-title").value.trim(),
     excerpt: $("f-excerpt").value.trim(),
+    // Παράγραφοι: χωρίζονται με κενή γραμμή
+    body: $("f-body").value.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean),
     category: $("f-category").value,
     date: new Date($("f-date").value).toISOString(),
   };
