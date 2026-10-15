@@ -1,15 +1,15 @@
 // Δείγματα ειδήσεων — αντικαταστήστε με πραγματικό περιεχόμενο.
 const news = [
-  { title: "Ανακαινίζεται η παραλιακή οδός Ναυαρίνου", excerpt: "Ξεκινούν οι εργασίες αναβάθμισης του πεζοδρομίου και του ποδηλατόδρομου κατά μήκος της παραλίας.", category: "Τοπικά", time: "πριν 1 ώρα", views: 1520, colors: ["#ff7a00", "#3a1a00"] },
-  { title: "Ρεκόρ αφίξεων στο αεροδρόμιο της Καλαμάτας", excerpt: "Αύξηση της επιβατικής κίνησης καταγράφεται για τη φετινή τουριστική σεζόν.", category: "Οικονομία", time: "πριν 2 ώρες", views: 2310, colors: ["#ffa94d", "#1a1a1a"] },
-  { title: "Νίκη για την Καλαμάτα στο τελευταίο λεπτό", excerpt: "Η Μαύρη Θύελλα πήρε σπουδαίο τρίπωντο μπροστά σε γεμάτες εξέδρες.", category: "Αθλητικά", time: "πριν 3 ώρες", views: 3890, colors: ["#111", "#ff7a00"] },
-  { title: "Διεθνές Φεστιβάλ Χορού: Το πρόγραμμα της χρονιάς", excerpt: "Παραστάσεις από καλλιτέχνες απ' όλο τον κόσμο στο Μέγαρο Χορού Καλαμάτας.", category: "Πολιτισμός", time: "πριν 4 ώρες", views: 980, colors: ["#e06500", "#2b0f00"] },
-  { title: "Συνεδρίαση δημοτικού συμβουλίου για τον προϋπολογισμό", excerpt: "Στο τραπέζι τα έργα υποδομής και οι κοινωνικές δράσεις του δήμου.", category: "Πολιτική", time: "πριν 5 ώρες", views: 740, colors: ["#333", "#ff8c1a"] },
-  { title: "Ηλιοφάνεια και ζέστη το Σαββατοκύριακο στη Μεσσηνία", excerpt: "Θερμοκρασίες έως 28 βαθμούς και ήπιοι άνεμοι σύμφωνα με την πρόγνωση.", category: "Καιρός", time: "πριν 6 ώρες", views: 1260, colors: ["#ffb366", "#ff7a00"] },
-  { title: "Καλαμάτα ελιά: Αισιοδοξία για τη νέα σοδειά", excerpt: "Οι παραγωγοί αναμένουν καλή χρονιά τόσο σε ποσότητα όσο και σε ποιότητα.", category: "Οικονομία", time: "πριν 7 ώρες", views: 1640, colors: ["#4a3200", "#ff9a33"] },
-  { title: "Νέοι χώροι πρασίνου στο κέντρο της πόλης", excerpt: "Δενδροφυτεύσεις και νέα παιδικά πάρκα στις γειτονιές της Καλαμάτας.", category: "Τοπικά", time: "πριν 8 ώρες", views: 560, colors: ["#1f1f1f", "#ffa94d"] },
-  { title: "Μπάσκετ: Ξεκινά η προετοιμασία της ομάδας", excerpt: "Με νέες μεταγραφές και φιλόδοξους στόχους η νέα αγωνιστική περίοδος.", category: "Αθλητικά", time: "πριν 9 ώρες", views: 870, colors: ["#ff7a00", "#000"] },
-  { title: "Έκθεση φωτογραφίας στο Ιστορικό Κέντρο", excerpt: "Η Καλαμάτα του περασμένου αιώνα μέσα από σπάνιο αρχειακό υλικό.", category: "Πολιτισμός", time: "πριν 10 ώρες", views: 430, colors: ["#2a2a2a", "#e06500"] },
+  { title: "Ανακαινίζεται η παραλιακή οδός Ναυαρίνου", excerpt: "Ξεκινούν οι εργασίες αναβάθμισης του πεζοδρομίου και του ποδηλατόδρομου κατά μήκος της παραλίας.", category: "Τοπικά", time: "πριν 1 ώρα", views: 1520, colors: ["#ff7a00", "#3a1a00"] , image: "images/1.jpg" },
+  { title: "Ρεκόρ αφίξεων στο αεροδρόμιο της Καλαμάτας", excerpt: "Αύξηση της επιβατικής κίνησης καταγράφεται για τη φετινή τουριστική σεζόν.", category: "Οικονομία", time: "πριν 2 ώρες", views: 2310, colors: ["#ffa94d", "#1a1a1a"] , image: "images/2.jpg" },
+  { title: "Νίκη για την Καλαμάτα στο τελευταίο λεπτό", excerpt: "Η Μαύρη Θύελλα πήρε σπουδαίο τρίπωντο μπροστά σε γεμάτες εξέδρες.", category: "Αθλητικά", time: "πριν 3 ώρες", views: 3890, colors: ["#111", "#ff7a00"] , image: "images/3.jpg" },
+  { title: "Διεθνές Φεστιβάλ Χορού: Το πρόγραμμα της χρονιάς", excerpt: "Παραστάσεις από καλλιτέχνες απ' όλο τον κόσμο στο Μέγαρο Χορού Καλαμάτας.", category: "Πολιτισμός", time: "πριν 4 ώρες", views: 980, colors: ["#e06500", "#2b0f00"] , image: "images/4.jpg" },
+  { title: "Συνεδρίαση δημοτικού συμβουλίου για τον προϋπολογισμό", excerpt: "Στο τραπέζι τα έργα υποδομής και οι κοινωνικές δράσεις του δήμου.", category: "Πολιτική", time: "πριν 5 ώρες", views: 740, colors: ["#333", "#ff8c1a"] , image: "images/5.jpg" },
+  { title: "Ηλιοφάνεια και ζέστη το Σαββατοκύριακο στη Μεσσηνία", excerpt: "Θερμοκρασίες έως 28 βαθμούς και ήπιοι άνεμοι σύμφωνα με την πρόγνωση.", category: "Καιρός", time: "πριν 6 ώρες", views: 1260, colors: ["#ffb366", "#ff7a00"] , image: "images/6.jpg" },
+  { title: "Καλαμάτα ελιά: Αισιοδοξία για τη νέα σοδειά", excerpt: "Οι παραγωγοί αναμένουν καλή χρονιά τόσο σε ποσότητα όσο και σε ποιότητα.", category: "Οικονομία", time: "πριν 7 ώρες", views: 1640, colors: ["#4a3200", "#ff9a33"] , image: "images/7.jpg" },
+  { title: "Νέοι χώροι πρασίνου στο κέντρο της πόλης", excerpt: "Δενδροφυτεύσεις και νέα παιδικά πάρκα στις γειτονιές της Καλαμάτας.", category: "Τοπικά", time: "πριν 8 ώρες", views: 560, colors: ["#1f1f1f", "#ffa94d"] , image: "images/8.jpg" },
+  { title: "Μπάσκετ: Ξεκινά η προετοιμασία της ομάδας", excerpt: "Με νέες μεταγραφές και φιλόδοξους στόχους η νέα αγωνιστική περίοδος.", category: "Αθλητικά", time: "πριν 9 ώρες", views: 870, colors: ["#ff7a00", "#000"] , image: "images/9.jpg" },
+  { title: "Έκθεση φωτογραφίας στο Ιστορικό Κέντρο", excerpt: "Η Καλαμάτα του περασμένου αιώνα μέσα από σπάνιο αρχειακό υλικό.", category: "Πολιτισμός", time: "πριν 10 ώρες", views: 430, colors: ["#2a2a2a", "#e06500"] , image: "images/10.jpg" },
 ];
 
 const breaking = [
@@ -19,14 +19,18 @@ const breaking = [
   "Διακοπή υδροδότησης αύριο σε περιοχές της πόλης",
 ];
 
-const bg = (c) => `background:linear-gradient(135deg, ${c[0]}, ${c[1]})`;
+// Η φωτογραφία μπαίνει πάνω από το χρώμα· αν λείπει, φαίνεται το χρώμα.
+const bg = (n) => {
+  const gradient = `linear-gradient(135deg, ${n.colors[0]}, ${n.colors[1]})`;
+  return `background-image:${n.image ? `url('${n.image}'), ` : ""}${gradient}`;
+};
 
 function renderHero() {
   const [main, ...rest] = news;
   const side = rest.slice(0, 2);
   document.getElementById("hero").innerHTML = `
     <article class="hero-main">
-      <div class="img" style="${bg(main.colors)}"></div>
+      <div class="img" style="${bg(main)}"></div>
       <div class="overlay">
         <span class="tag">${main.category}</span>
         <h1>${main.title}</h1>
@@ -36,7 +40,7 @@ function renderHero() {
     <div class="hero-side">
       ${side.map((n) => `
         <article>
-          <div class="img" style="${bg(n.colors)}"></div>
+          <div class="img" style="${bg(n)}"></div>
           <div class="overlay">
             <span class="tag">${n.category}</span>
             <h3>${n.title}</h3>
@@ -48,7 +52,7 @@ function renderHero() {
 function renderGrid(items) {
   document.getElementById("news-grid").innerHTML = items.map((n) => `
     <article class="card">
-      <div class="card-img"><div class="img" style="${bg(n.colors)}"></div></div>
+      <div class="card-img"><div class="img" style="${bg(n)}"></div></div>
       <div class="card-body">
         <span class="tag">${n.category}</span>
         <h3>${n.title}</h3>
