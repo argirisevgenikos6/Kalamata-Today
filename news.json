@@ -31,7 +31,8 @@
         "#ffa94d",
         "#1a1a1a"
       ],
-      "image": "images/2.jpg"
+      "image": "images/2.jpg",
+      "featured": 3
     },
     {
       "id": "1792047599998",
