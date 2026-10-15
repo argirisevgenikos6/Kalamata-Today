@@ -19,7 +19,7 @@
   <div class="topbar">
     <div class="container topbar-inner">
       <span id="today-date"></span>
-      <span class="weather">☀️ Καλαμάτα <strong>24°C</strong></span>
+      <span class="weather" id="topbar-weather">Καλαμάτα</span>
     </div>
   </div>
 
@@ -64,6 +64,15 @@
 
     <!-- Hero -->
     <section class="hero" id="hero"></section>
+
+    <!-- Καιρός (εμφανίζεται μόνο στην κατηγορία Καιρός) -->
+    <section class="weather-panel" id="weather-panel" hidden>
+      <div class="section-head">
+        <h2>Ο καιρός στην Καλαμάτα</h2>
+      </div>
+      <div id="weather-body"><p class="weather-status">Φόρτωση καιρού…</p></div>
+      <p class="weather-source">Δεδομένα: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a></p>
+    </section>
 
     <div class="layout">
       <!-- News feed -->

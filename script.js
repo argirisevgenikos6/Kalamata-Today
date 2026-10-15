@@ -6,6 +6,8 @@ const news = [
   { title: "Διεθνές Φεστιβάλ Χορού: Το πρόγραμμα της χρονιάς", excerpt: "Παραστάσεις από καλλιτέχνες απ' όλο τον κόσμο στο Μέγαρο Χορού Καλαμάτας.", category: "Πολιτισμός", time: "πριν 4 ώρες", views: 980, colors: ["#e06500", "#2b0f00"] , image: "images/4.jpg" },
   { title: "Συνεδρίαση δημοτικού συμβουλίου για τον προϋπολογισμό", excerpt: "Στο τραπέζι τα έργα υποδομής και οι κοινωνικές δράσεις του δήμου.", category: "Πολιτική", time: "πριν 5 ώρες", views: 740, colors: ["#333", "#ff8c1a"] , image: "images/5.jpg" },
   { title: "Ηλιοφάνεια και ζέστη το Σαββατοκύριακο στη Μεσσηνία", excerpt: "Θερμοκρασίες έως 28 βαθμούς και ήπιοι άνεμοι σύμφωνα με την πρόγνωση.", category: "Καιρός", time: "πριν 6 ώρες", views: 1260, colors: ["#ffb366", "#ff7a00"] , image: "images/6.jpg" },
+  { title: "Πρώτες βροχές του φθινοπώρου στη Μεσσηνία", excerpt: "Τοπικές μπόρες αναμένονται στα ορεινά του Ταϋγέτου, ενώ στην πόλη ο καιρός θα παραμείνει ήπιος.", category: "Καιρός", time: "πριν 6 ώρες", views: 690, colors: ["#3b3b3b", "#ff9a33"] },
+  { title: "Ήρεμη θάλασσα στον Μεσσηνιακό Κόλπο", excerpt: "Ασθενείς άνεμοι και θερμοκρασία νερού γύρω στους 23 βαθμούς ευνοούν το κολύμπι.", category: "Καιρός", time: "πριν 7 ώρες", views: 510, colors: ["#ff8c1a", "#2b1400"] },
   { title: "Καλαμάτα ελιά: Αισιοδοξία για τη νέα σοδειά", excerpt: "Οι παραγωγοί αναμένουν καλή χρονιά τόσο σε ποσότητα όσο και σε ποιότητα.", category: "Οικονομία", time: "πριν 7 ώρες", views: 1640, colors: ["#4a3200", "#ff9a33"] , image: "images/7.jpg" },
   { title: "Νέοι χώροι πρασίνου στο κέντρο της πόλης", excerpt: "Δενδροφυτεύσεις και νέα παιδικά πάρκα στις γειτονιές της Καλαμάτας.", category: "Τοπικά", time: "πριν 8 ώρες", views: 560, colors: ["#1f1f1f", "#ffa94d"] , image: "images/8.jpg" },
   { title: "Μπάσκετ: Ξεκινά η προετοιμασία της ομάδας", excerpt: "Με νέες μεταγραφές και φιλόδοξους στόχους η νέα αγωνιστική περίοδος.", category: "Αθλητικά", time: "πριν 9 ώρες", views: 870, colors: ["#ff7a00", "#000"] , image: "images/9.jpg" },
@@ -93,6 +95,7 @@ document.querySelectorAll(".nav a").forEach((link) => {
     link.classList.add("active");
     currentCat = link.dataset.cat;
     document.getElementById("hero").hidden = currentCat !== "all";
+    document.getElementById("weather-panel").hidden = currentCat !== "Καιρός";
     document.getElementById("nav").classList.remove("open");
     applyFilters();
   });
@@ -128,6 +131,79 @@ document.getElementById("today-date").textContent = new Date().toLocaleDateStrin
   weekday: "long", day: "numeric", month: "long", year: "numeric",
 });
 document.getElementById("year").textContent = new Date().getFullYear();
+
+// ---------- Καιρός (Open-Meteo, δωρεάν χωρίς κλειδί) ----------
+const WEATHER_URL =
+  "https://api.open-meteo.com/v1/forecast?latitude=37.0389&longitude=22.1142" +
+  "&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m" +
+  "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
+  "&timezone=Europe%2FAthens&forecast_days=7";
+
+// Κωδικοί καιρού WMO → περιγραφή και εικονίδιο
+function describeWeather(code) {
+  if (code === 0) return ["Αίθριος", "☀️"];
+  if (code <= 2) return ["Λίγα σύννεφα", "🌤️"];
+  if (code === 3) return ["Συννεφιά", "☁️"];
+  if (code <= 48) return ["Ομίχλη", "🌫️"];
+  if (code <= 57) return ["Ψιχάλες", "🌦️"];
+  if (code <= 67) return ["Βροχή", "🌧️"];
+  if (code <= 77) return ["Χιόνι", "❄️"];
+  if (code <= 82) return ["Μπόρες", "🌦️"];
+  if (code <= 86) return ["Χιονόπτωση", "🌨️"];
+  return ["Καταιγίδα", "⛈️"];
+}
+
+const round = (x) => Math.round(x);
+
+function renderWeather(data) {
+  const c = data.current;
+  const d = data.daily;
+  const [desc, icon] = describeWeather(c.weather_code);
+
+  document.getElementById("topbar-weather").innerHTML =
+    `${icon} Καλαμάτα <strong>${round(c.temperature_2m)}°C</strong>`;
+
+  const days = d.time.map((t, i) => {
+    const date = new Date(t + "T12:00:00");
+    const name = i === 0 ? "Σήμερα" : i === 1 ? "Αύριο" :
+      date.toLocaleDateString("el-GR", { weekday: "long" });
+    const [dDesc, dIcon] = describeWeather(d.weather_code[i]);
+    return `
+      <div class="day">
+        <span class="day-name">${name}</span>
+        <span class="day-date">${date.toLocaleDateString("el-GR", { day: "numeric", month: "short" })}</span>
+        <span class="day-icon" title="${dDesc}">${dIcon}</span>
+        <span class="day-temp"><strong>${round(d.temperature_2m_max[i])}°</strong> / ${round(d.temperature_2m_min[i])}°</span>
+        <span class="day-rain">💧 ${d.precipitation_probability_max[i] ?? 0}%</span>
+      </div>`;
+  }).join("");
+
+  document.getElementById("weather-body").innerHTML = `
+    <div class="weather-today">
+      <div class="today-main">
+        <span class="today-icon">${icon}</span>
+        <div>
+          <div class="today-temp">${round(c.temperature_2m)}°C</div>
+          <div class="today-desc">${desc}</div>
+        </div>
+      </div>
+      <dl class="today-details">
+        <div><dt>Αίσθηση</dt><dd>${round(c.apparent_temperature)}°C</dd></div>
+        <div><dt>Μέγιστη / Ελάχιστη</dt><dd>${round(d.temperature_2m_max[0])}° / ${round(d.temperature_2m_min[0])}°</dd></div>
+        <div><dt>Υγρασία</dt><dd>${c.relative_humidity_2m}%</dd></div>
+        <div><dt>Άνεμος</dt><dd>${round(c.wind_speed_10m)} km/h</dd></div>
+      </dl>
+    </div>
+    <div class="forecast">${days}</div>`;
+}
+
+fetch(WEATHER_URL)
+  .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+  .then(renderWeather)
+  .catch(() => {
+    document.getElementById("weather-body").innerHTML =
+      `<p class="weather-status">Ο καιρός δεν είναι διαθέσιμος αυτή τη στιγμή. Δοκιμάστε ξανά σε λίγο.</p>`;
+  });
 
 renderHero();
 renderGrid(news);
