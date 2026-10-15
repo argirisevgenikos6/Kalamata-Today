@@ -102,6 +102,18 @@ toggle.addEventListener("click", () => {
   toggle.setAttribute("aria-expanded", open);
 });
 
+const themeBtn = document.getElementById("theme-toggle");
+const syncThemeBtn = () =>
+  themeBtn.setAttribute("aria-pressed", document.documentElement.dataset.theme === "dark");
+syncThemeBtn();
+themeBtn.addEventListener("click", () => {
+  const dark = document.documentElement.dataset.theme !== "dark";
+  if (dark) document.documentElement.dataset.theme = "dark";
+  else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem("theme", dark ? "dark" : "light"); } catch (e) {}
+  syncThemeBtn();
+});
+
 document.getElementById("newsletter-form").addEventListener("submit", (e) => {
   e.preventDefault();
   e.target.reset();

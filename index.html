@@ -9,6 +9,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script>
+    try { if (localStorage.getItem("theme") === "dark") document.documentElement.dataset.theme = "dark"; } catch (e) {}
+  </script>
 </head>
 <body>
 
@@ -36,6 +39,11 @@
         <a href="#" data-cat="Πολιτισμός">Πολιτισμός</a>
         <a href="#" data-cat="Καιρός">Καιρός</a>
       </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Σκοτεινή λειτουργία" aria-pressed="false">
+        <span class="icon" aria-hidden="true">☀️</span>
+        <span class="track"><span class="thumb"></span></span>
+        <span class="icon" aria-hidden="true">🌙</span>
+      </button>
       <div class="search">
         <input type="search" id="search" placeholder="Αναζήτηση..." aria-label="Αναζήτηση">
       </div>
