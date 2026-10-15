@@ -30,15 +30,37 @@
 
     <!-- Σύνδεση -->
     <section class="panel login" id="login-view" hidden>
-      <h1>Σύνδεση</h1>
-      <p>Βάλτε το κλειδί (token) του GitHub. Αποθηκεύεται μόνο σε αυτόν τον browser.</p>
-      <form id="login-form">
-        <label for="token">GitHub token</label>
-        <input type="password" id="token" autocomplete="off" required placeholder="github_pat_...">
-        <button type="submit" class="btn">Σύνδεση</button>
-      </form>
       <p class="msg" id="login-msg" hidden></p>
-      <details class="help">
+
+      <!-- Σύνδεση με κωδικό -->
+      <div id="password-mode" hidden>
+        <h1>Σύνδεση</h1>
+        <form id="password-form">
+          <label for="password">Κωδικός</label>
+          <input type="password" id="password" autocomplete="current-password" required>
+          <button type="submit" class="btn">Σύνδεση</button>
+        </form>
+        <p class="switch"><a href="#" id="to-setup">Ξέχασα τον κωδικό / Αλλαγή κωδικού</a></p>
+      </div>
+
+      <!-- Πρώτη ρύθμιση: token + νέος κωδικός -->
+      <div id="setup-mode" hidden>
+        <h1>Ρύθμιση κωδικού</h1>
+        <p>Βάλτε <strong>μία φορά</strong> το κλειδί (token) του GitHub και διαλέξτε έναν κωδικό.
+          Από εκεί και πέρα θα μπαίνετε μόνο με τον κωδικό, από οποιαδήποτε συσκευή.</p>
+        <form id="setup-form">
+          <label for="token">GitHub token</label>
+          <input type="password" id="token" autocomplete="off" required placeholder="github_pat_...">
+          <label for="new-password">Νέος κωδικός (τουλάχιστον 10 χαρακτήρες)</label>
+          <input type="password" id="new-password" autocomplete="new-password" required minlength="10">
+          <label for="new-password-2">Ξανά ο κωδικός</label>
+          <input type="password" id="new-password-2" autocomplete="new-password" required minlength="10">
+          <button type="submit" class="btn">Αποθήκευση και σύνδεση</button>
+        </form>
+        <p class="switch" id="to-password-wrap" hidden><a href="#" id="to-password">← Πίσω στη σύνδεση με κωδικό</a></p>
+      </div>
+
+      <details class="help" id="token-help" hidden>
         <summary>Πώς φτιάχνω token;</summary>
         <ol>
           <li>Ανοίξτε το <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → Fine-grained token</a>.</li>
@@ -54,6 +76,14 @@
     <div id="app-view" hidden>
       <p class="msg" id="status" hidden></p>
 
+      <!-- Πρωτοσέλιδο: τα 3 θέματα στην κορυφή του site -->
+      <section class="panel">
+        <h2>Πρωτοσέλιδο <span class="count">— έτσι φαίνεται τώρα η κορυφή του site</span></h2>
+        <div class="front" id="front"></div>
+        <p class="hint">Για να αλλάξετε ποιο θέμα μπαίνει πού, διαλέξτε «Θέση» στη λίστα ειδήσεων πιο κάτω.
+          Οι θέσεις που μένουν «αυτόματα» παίρνουν τις πιο πρόσφατες ειδήσεις.</p>
+      </section>
+
       <div class="admin-layout">
         <!-- Φόρμα είδησης -->
         <section class="panel">
@@ -64,6 +94,14 @@
 
             <label for="f-excerpt">Περίληψη</label>
             <textarea id="f-excerpt" rows="4" required maxlength="600"></textarea>
+
+            <label for="f-featured">Θέση στο πρωτοσέλιδο</label>
+            <select id="f-featured">
+              <option value="">Αυτόματα (με βάση την ημερομηνία)</option>
+              <option value="1">1 · Κεντρικό θέμα (μεγάλο)</option>
+              <option value="2">2 · Δεξιά πάνω</option>
+              <option value="3">3 · Δεξιά κάτω</option>
+            </select>
 
             <div class="row">
               <div>
@@ -119,6 +157,8 @@
           <h2>Ειδήσεις <span class="count" id="count"></span></h2>
           <input type="search" id="list-search" placeholder="Αναζήτηση..." aria-label="Αναζήτηση ειδήσεων">
         </div>
+        <p class="hint">Με τη σειρά που εμφανίζονται στο site: η νεότερη πρώτη. Για να ανεβάσετε μια είδηση,
+          αλλάξτε την ημερομηνία και ώρα της ή βάλτε την στο πρωτοσέλιδο.</p>
         <ul class="news-list" id="news-list"></ul>
       </section>
     </div>

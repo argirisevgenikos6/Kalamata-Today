@@ -4,6 +4,8 @@ const REPO = "Kalamata-Today";
 const BRANCH = "main";
 const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
 const TOKEN_KEY = "kt-admin-token";
+const KEY_FILE = "admin-key.json"; // το token κρυπτογραφημένο με τον κωδικό
+const SLOT_NAMES = { 1: "Κεντρικό θέμα", 2: "Δεξιά πάνω", 3: "Δεξιά κάτω" };
 
 const PALETTE = [
   ["#ff7a00", "#3a1a00"], ["#ffa94d", "#1a1a1a"], ["#111", "#ff7a00"], ["#e06500", "#2b0f00"],
@@ -96,6 +98,80 @@ async function deleteImage(path) {
   } catch (e) { /* η φωτογραφία δεν υπάρχει ή δεν σβήστηκε — δεν πειράζει */ }
 }
 
+// ---------- Κωδικός: το token κρυπτογραφείται (AES-GCM) με κλειδί από τον κωδικό (PBKDF2) ----------
+const ITERATIONS = 600000;
+const b64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+
+async function deriveKey(password, salt, iterations) {
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
+    base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+
+async function encryptToken(tok, password) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(password, salt, ITERATIONS);
+  const data = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(tok));
+  return { v: 1, iterations: ITERATIONS, salt: b64(salt), iv: b64(iv), data: b64(data) };
+}
+
+async function decryptToken(box, password) {
+  const key = await deriveKey(password, unb64(box.salt), box.iterations);
+  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(box.iv) }, key, unb64(box.data));
+  return new TextDecoder().decode(plain);
+}
+
+// Διαβάζει το admin-key.json χωρίς σύνδεση (το repo είναι δημόσιο). null = δεν έχει ρυθμιστεί κωδικός.
+async function fetchKeyFile() {
+  const res = await fetch(`${API}/contents/${KEY_FILE}?ref=${BRANCH}`, {
+    headers: { Accept: "application/vnd.github.raw+json" }, cache: "no-store",
+  }).catch(() => null);
+  if (res && res.ok) return res.json();
+  if (res && res.status === 404) return null;
+  // Αν το API δεν απαντά (π.χ. όριο αιτημάτων), δοκιμάζουμε το αρχείο από το ίδιο το site
+  const local = await fetch(`${KEY_FILE}?v=${Date.now()}`, { cache: "no-store" }).catch(() => null);
+  return local && local.ok ? local.json() : null;
+}
+
+async function saveKeyFile(box) {
+  let sha;
+  try { sha = (await gh(`/contents/${KEY_FILE}?ref=${BRANCH}`)).sha; } catch (e) { if (e.status !== 404) throw e; }
+  await gh(`/contents/${KEY_FILE}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      message: "Ενημέρωση κωδικού διαχείρισης",
+      content: toBase64(JSON.stringify(box, null, 2) + "\n"),
+      branch: BRANCH,
+      ...(sha ? { sha } : {}),
+    }),
+  });
+}
+
+// ---------- Πρωτοσέλιδο: ίδια λογική με το script.js ----------
+const byDate = (a, b) => new Date(b.date) - new Date(a.date);
+function frontPage(items) {
+  const sorted = [...items].sort(byDate);
+  const auto = sorted.filter((n) => ![1, 2, 3].includes(n.featured));
+  return [1, 2, 3].map((slot) => {
+    const chosen = sorted.find((n) => n.featured === slot);
+    return chosen ? { item: chosen, chosen: true } : { item: auto.shift(), chosen: false };
+  });
+}
+
+// Βάζει την είδηση id στη θέση slot (ή τη βγάζει με slot = null), αδειάζοντας τη θέση από άλλες
+function setSlot(json, id, slot) {
+  json.news.forEach((n) => {
+    if (n.id === id) {
+      if (slot) n.featured = slot; else delete n.featured;
+    } else if (slot && n.featured === slot) {
+      delete n.featured;
+    }
+  });
+}
+
 // ---------- Φωτογραφίες: σμίκρυνση σε 1200px JPEG πριν το ανέβασμα ----------
 function resizeImage(file) {
   return new Promise((resolve, reject) => {
@@ -146,24 +222,51 @@ const formatDate = (iso) => new Date(iso).toLocaleString("el-GR", {
 // Η φωτογραφία φορτώνεται από το raw.githubusercontent ώστε να φαίνεται αμέσως, πριν ενημερωθεί το site
 const rawUrl = (path) => `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${encodeURI(path)}`;
 
+function renderFront() {
+  $("front").innerHTML = frontPage(data.news).map(({ item, chosen }, i) => `
+    <div class="slot slot-${i + 1}">
+      <div class="slot-img" style="${item ? thumbStyle(item) : ""}">
+        <span class="slot-num">${i + 1}</span>
+      </div>
+      <div class="slot-body">
+        <span class="slot-name">${SLOT_NAMES[i + 1]}</span>
+        <strong>${item ? esc(item.title) : "— κενό —"}</strong>
+        <span class="slot-mode ${chosen ? "chosen" : ""}">${chosen ? "📌 Επιλεγμένο" : "Αυτόματα (πιο πρόσφατο)"}</span>
+      </div>
+    </div>`).join("");
+}
+
 function renderList() {
+  renderFront();
   const q = $("list-search").value.trim().toLowerCase();
-  const items = [...data.news]
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
+  const sorted = [...data.news].sort(byDate);
+  const front = frontPage(data.news);
+  const items = sorted
     .filter((n) => !q || n.title.toLowerCase().includes(q) || n.excerpt.toLowerCase().includes(q));
   $("count").textContent = `(${data.news.length})`;
-  $("news-list").innerHTML = items.map((n) => `
+  $("news-list").innerHTML = items.map((n) => {
+    const pos = sorted.indexOf(n) + 1;
+    const slot = front.findIndex((f) => f.item === n) + 1;
+    const opts = ["", 1, 2, 3].map((v) =>
+      `<option value="${v}" ${(n.featured || "") === v ? "selected" : ""}>${v ? `${v} · ${SLOT_NAMES[v]}` : "Αυτόματα"}</option>`).join("");
+    return `
     <li class="${n.id === editingId ? "editing" : ""}">
+      <span class="pos" title="Σειρά στο site">${pos}</span>
       <div class="thumb" style="${thumbStyle(n)}"></div>
       <div class="info">
         <strong>${esc(n.title)}</strong>
         <span>${esc(n.category)} · ${formatDate(n.date)}</span>
+        ${slot ? `<span class="badge">Πρωτοσέλιδο ${slot} · ${SLOT_NAMES[slot]}</span>` : ""}
       </div>
+      <label class="slot-select">Θέση
+        <select data-slot="${esc(n.id)}">${opts}</select>
+      </label>
       <div class="btns">
         <button class="btn-ghost" data-edit="${esc(n.id)}">Επεξεργασία</button>
         <button class="btn-ghost danger" data-delete="${esc(n.id)}">Διαγραφή</button>
       </div>
-    </li>`).join("") || `<li>Δεν υπάρχουν ειδήσεις.</li>`;
+    </li>`;
+  }).join("") || `<li>Δεν υπάρχουν ειδήσεις.</li>`;
 }
 
 function renderBreaking() {
@@ -189,6 +292,7 @@ function resetForm() {
   removeImage = false;
   $("news-form").reset();
   $("f-date").value = toLocalInput(new Date());
+  $("f-featured").value = "";
   $("form-title").textContent = "Νέα είδηση";
   $("save-btn").textContent = "Δημοσίευση";
   $("cancel-edit").hidden = true;
@@ -206,6 +310,7 @@ function startEdit(id) {
   $("f-excerpt").value = n.excerpt;
   $("f-category").value = n.category;
   $("f-date").value = toLocalInput(new Date(n.date));
+  $("f-featured").value = n.featured || "";
   $("f-image").value = "";
   $("form-title").textContent = "Επεξεργασία είδησης";
   $("save-btn").textContent = "Αποθήκευση αλλαγών";
@@ -237,6 +342,7 @@ $("news-form").addEventListener("submit", (e) => {
     category: $("f-category").value,
     date: new Date($("f-date").value).toISOString(),
   };
+  const slot = Number($("f-featured").value) || null;
   const isNew = !editingId;
   const id = editingId || String(Date.now());
 
@@ -255,10 +361,12 @@ $("news-form").addEventListener("submit", (e) => {
         const item = { id, ...fields, views: 0, colors: PALETTE[Math.floor(Math.random() * PALETTE.length)] };
         if (imagePath) item.image = imagePath;
         json.news.unshift(item);
+        setSlot(json, id, slot);
       } else {
         const item = json.news.find((x) => x.id === id);
         if (!item) throw new Error("Η είδηση δεν βρέθηκε (ίσως διαγράφηκε)");
         Object.assign(item, fields);
+        setSlot(json, id, slot);
         if (imagePath || removeImage) {
           oldImage = item.image || null;
           if (imagePath) item.image = imagePath;
@@ -329,7 +437,25 @@ $("breaking-form").addEventListener("submit", (e) => {
 
 $("list-search").addEventListener("input", renderList);
 
+// Αλλαγή θέσης στο πρωτοσέλιδο απευθείας από τη λίστα
+$("news-list").addEventListener("change", (e) => {
+  const sel = e.target.closest("[data-slot]");
+  if (!sel) return;
+  const id = sel.dataset.slot;
+  const slot = Number(sel.value) || null;
+  const n = data.news.find((x) => x.id === id);
+  sel.disabled = true;
+  showStatus("Αποθήκευση θέσης…");
+  updateNews((json) => setSlot(json, id, slot),
+    slot ? `Πρωτοσέλιδο ${slot}: ${n.title}` : `Εκτός πρωτοσέλιδου: ${n.title}`)
+    .then(() => showStatus(`${slot ? `Μπήκε στη θέση ${slot} (${SLOT_NAMES[slot]}).` : "Η θέση έγινε αυτόματη."} ${LIVE_NOTE}`, "ok"))
+    .catch((err) => showStatus(errorText(err), "error"))
+    .finally(renderList);
+});
+
 // ---------- Σύνδεση ----------
+let keyBox = null; // περιεχόμενο του admin-key.json
+
 async function enter() {
   const { json } = await loadNews();
   data = json;
@@ -340,40 +466,96 @@ async function enter() {
   resetForm();
 }
 
-function showLogin(message) {
+function loginMessage(text, type = "error") {
+  $("login-msg").hidden = !text;
+  $("login-msg").textContent = text || "";
+  $("login-msg").className = `msg ${type}`;
+}
+
+function showLogin(mode, message) {
   $("login-view").hidden = false;
   $("app-view").hidden = true;
   $("logout").hidden = true;
-  $("login-msg").hidden = !message;
-  $("login-msg").textContent = message || "";
-  $("login-msg").className = "msg error";
+  $("password-mode").hidden = mode !== "password";
+  $("setup-mode").hidden = mode !== "setup";
+  $("token-help").hidden = mode !== "setup";
+  $("to-password-wrap").hidden = !keyBox;
+  loginMessage(message);
+  (mode === "password" ? $("password") : $("token")).focus();
 }
 
-$("login-form").addEventListener("submit", async (e) => {
+function remember(tok) {
+  token = tok;
+  try { localStorage.setItem(TOKEN_KEY, tok); } catch (e) {}
+}
+
+// Σύνδεση με κωδικό
+$("password-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  token = $("token").value.trim();
   const btn = e.target.querySelector("button");
   btn.disabled = true;
+  loginMessage("Έλεγχος κωδικού…", "");
   try {
-    const repo = await gh("");
-    if (!repo.permissions || !repo.permissions.push) throw Object.assign(new Error("no push"), { status: 403 });
-    try { localStorage.setItem(TOKEN_KEY, token); } catch (err) {}
-    $("token").value = "";
+    let tok;
+    try { tok = await decryptToken(keyBox, $("password").value); }
+    catch (err) { throw Object.assign(new Error("wrong"), { wrongPassword: true }); }
+    token = tok;
     await enter();
+    remember(tok);
+    $("password").value = "";
   } catch (err) {
     token = "";
-    showLogin(errorText(err));
+    loginMessage(err.wrongPassword ? "Λάθος κωδικός." :
+      err.status === 401 ? "Το token που είναι αποθηκευμένο έληξε. Πατήστε «Αλλαγή κωδικού» και βάλτε νέο token." :
+      errorText(err));
   } finally {
     btn.disabled = false;
   }
 });
 
+// Πρώτη ρύθμιση ή αλλαγή κωδικού
+$("setup-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const tok = $("token").value.trim();
+  const pw = $("new-password").value;
+  if (pw !== $("new-password-2").value) return loginMessage("Οι δύο κωδικοί δεν είναι ίδιοι.");
+  if (pw.length < 10) return loginMessage("Ο κωδικός θέλει τουλάχιστον 10 χαρακτήρες.");
+  const btn = e.target.querySelector("button");
+  btn.disabled = true;
+  loginMessage("Έλεγχος token και αποθήκευση κωδικού…", "");
+  try {
+    token = tok;
+    const repo = await gh("");
+    if (!repo.permissions || !repo.permissions.push) throw Object.assign(new Error("no push"), { status: 403 });
+    keyBox = await encryptToken(tok, pw);
+    await saveKeyFile(keyBox);
+    remember(tok);
+    e.target.reset();
+    await enter();
+    showStatus("Ο κωδικός αποθηκεύτηκε. Από τώρα μπαίνετε μόνο με τον κωδικό, από οποιαδήποτε συσκευή.", "ok");
+  } catch (err) {
+    token = "";
+    loginMessage(errorText(err));
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+$("to-setup").addEventListener("click", (e) => { e.preventDefault(); showLogin("setup"); });
+$("to-password").addEventListener("click", (e) => { e.preventDefault(); showLogin("password"); });
+
 $("logout").addEventListener("click", () => {
   try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
   token = "";
-  showLogin();
+  showLogin(keyBox ? "password" : "setup");
 });
 
-try { token = localStorage.getItem(TOKEN_KEY) || ""; } catch (e) {}
-if (token) enter().catch((e) => showLogin(errorText(e)));
-else showLogin();
+(async () => {
+  try { token = localStorage.getItem(TOKEN_KEY) || ""; } catch (e) {}
+  keyBox = await fetchKeyFile().catch(() => null);
+  if (token) {
+    try { return await enter(); }
+    catch (e) { token = ""; try { localStorage.removeItem(TOKEN_KEY); } catch (_) {} }
+  }
+  showLogin(keyBox ? "password" : "setup");
+})();

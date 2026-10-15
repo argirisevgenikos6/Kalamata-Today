@@ -26,11 +26,17 @@ const bg = (n) => {
   return `background-image:${n.image ? `url('${encodeURI(n.image)}'), ` : ""}${gradient}`;
 };
 
+// Πρωτοσέλιδο: θέσεις 1–3 που διάλεξε ο διαχειριστής (featured),
+// οι υπόλοιπες γεμίζουν με τις πιο πρόσφατες ειδήσεις.
+function frontPage() {
+  const auto = news.filter((n) => ![1, 2, 3].includes(n.featured));
+  return [1, 2, 3].map((slot) => news.find((n) => n.featured === slot) || auto.shift()).filter(Boolean);
+}
+
 function renderHero() {
   const hero = document.getElementById("hero");
   if (!news.length) { hero.innerHTML = ""; return; }
-  const [main, ...rest] = news;
-  const side = rest.slice(0, 2);
+  const [main, ...side] = frontPage();
   hero.innerHTML = `
     <article class="hero-main">
       <div class="img" style="${bg(main)}"></div>
