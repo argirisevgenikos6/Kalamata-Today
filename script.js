@@ -141,21 +141,52 @@ function showArticle(n) {
   window.scrollTo(0, 0);
 }
 
-function route() {
+function articleIdFromHash() {
   const m = location.hash.match(/^#arthro-(.+)$/);
-  const id = m && decodeURIComponent(m[1]);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function route(id = articleIdFromHash()) {
   const article = id && news.find((n) => String(n.id) === id);
   if (article) showArticle(article);
   else showList();
 }
 
-// Επιστροφή στη λίστα (καθαρίζει το #arthro-… από τη διεύθυνση)
-function goToList() {
-  if (location.hash) history.pushState(null, "", location.pathname + location.search);
-  route();
+// Αλλάζει τη διεύθυνση χωρίς να φορτώσει ξανά τη σελίδα.
+// Σε κάποια περιβάλλοντα (π.χ. ενσωματωμένες προβολές) αυτό απαγορεύεται,
+// οπότε η σελίδα αλλάζει έτσι κι αλλιώς.
+function setUrl(hash) {
+  try { history.pushState(null, "", hash || location.pathname + location.search); } catch (e) {}
 }
 
-window.addEventListener("hashchange", route);
+function openArticle(id) {
+  setUrl(`#arthro-${encodeURIComponent(id)}`);
+  route(id);
+}
+
+// Επιστροφή στη λίστα (καθαρίζει το #arthro-… από τη διεύθυνση)
+function goToList() {
+  if (location.hash) setUrl("");
+  route(null);
+}
+
+// Τα κλικ σε ειδήσεις τα χειριζόμαστε εμείς, ώστε να δουλεύουν παντού
+document.addEventListener("click", (e) => {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+  const a = e.target.closest("a");
+  if (!a) return;
+  const href = a.getAttribute("href") || "";
+  if (href.startsWith("#arthro-")) {
+    e.preventDefault();
+    openArticle(decodeURIComponent(href.slice("#arthro-".length)));
+  } else if (a.classList.contains("back")) {
+    e.preventDefault();
+    goToList();
+  }
+});
+
+window.addEventListener("hashchange", () => route());
+window.addEventListener("popstate", () => route());
 
 document.querySelectorAll(".nav a").forEach((link) => {
   link.addEventListener("click", (e) => {
