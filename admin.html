@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Διαχείριση | Kalamata Today</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin.css">
+  <script>
+    try { if (localStorage.getItem("theme") === "dark") document.documentElement.dataset.theme = "dark"; } catch (e) {}
+  </script>
+</head>
+<body>
+
+  <header class="header">
+    <div class="container header-inner admin-header">
+      <a href="index.html" class="logo" target="_blank" rel="noopener">
+        <span class="logo-main">KALAMATA</span><span class="logo-accent">TODAY</span>
+      </a>
+      <span class="admin-badge">Διαχείριση</span>
+      <button class="btn-ghost" id="logout" hidden>Αποσύνδεση</button>
+    </div>
+  </header>
+
+  <main class="container admin">
+
+    <!-- Σύνδεση -->
+    <section class="panel login" id="login-view" hidden>
+      <h1>Σύνδεση</h1>
+      <p>Βάλτε το κλειδί (token) του GitHub. Αποθηκεύεται μόνο σε αυτόν τον browser.</p>
+      <form id="login-form">
+        <label for="token">GitHub token</label>
+        <input type="password" id="token" autocomplete="off" required placeholder="github_pat_...">
+        <button type="submit" class="btn">Σύνδεση</button>
+      </form>
+      <p class="msg" id="login-msg" hidden></p>
+      <details class="help">
+        <summary>Πώς φτιάχνω token;</summary>
+        <ol>
+          <li>Ανοίξτε το <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → Fine-grained token</a>.</li>
+          <li><strong>Token name:</strong> Kalamata Today admin. <strong>Expiration:</strong> όσο θέλετε (π.χ. 1 χρόνο).</li>
+          <li><strong>Repository access:</strong> Only select repositories → <strong>Kalamata-Today</strong>.</li>
+          <li><strong>Permissions → Repository permissions → Contents:</strong> Read and write.</li>
+          <li>Πατήστε <strong>Generate token</strong>, αντιγράψτε το και βάλτε το εδώ.</li>
+        </ol>
+      </details>
+    </section>
+
+    <!-- Πίνακας διαχείρισης -->
+    <div id="app-view" hidden>
+      <p class="msg" id="status" hidden></p>
+
+      <div class="admin-layout">
+        <!-- Φόρμα είδησης -->
+        <section class="panel">
+          <h2 id="form-title">Νέα είδηση</h2>
+          <form id="news-form">
+            <label for="f-title">Τίτλος</label>
+            <input type="text" id="f-title" required maxlength="160">
+
+            <label for="f-excerpt">Περίληψη</label>
+            <textarea id="f-excerpt" rows="4" required maxlength="600"></textarea>
+
+            <div class="row">
+              <div>
+                <label for="f-category">Κατηγορία</label>
+                <select id="f-category" required>
+                  <option>Τοπικά</option>
+                  <option>Πολιτική</option>
+                  <option>Οικονομία</option>
+                  <option>Αθλητικά</option>
+                  <option>Πολιτισμός</option>
+                  <option>Καιρός</option>
+                </select>
+              </div>
+              <div>
+                <label for="f-date">Ημερομηνία &amp; ώρα</label>
+                <input type="datetime-local" id="f-date" required>
+              </div>
+            </div>
+
+            <label for="f-image">Φωτογραφία</label>
+            <div class="image-field">
+              <div class="preview" id="preview"></div>
+              <div>
+                <input type="file" id="f-image" accept="image/*">
+                <button type="button" class="btn-ghost small" id="remove-image" hidden>Αφαίρεση φωτογραφίας</button>
+                <p class="hint">Μικραίνει αυτόματα πριν ανέβει.</p>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="btn" id="save-btn">Δημοσίευση</button>
+              <button type="button" class="btn-ghost" id="cancel-edit" hidden>Ακύρωση</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Έκτακτα -->
+        <section class="panel">
+          <h2>Έκτακτα (ticker)</h2>
+          <form id="breaking-form">
+            <label for="f-breaking">Ένα θέμα ανά γραμμή</label>
+            <textarea id="f-breaking" rows="6"></textarea>
+            <div class="actions">
+              <button type="submit" class="btn">Αποθήκευση έκτακτων</button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <!-- Λίστα ειδήσεων -->
+      <section class="panel">
+        <div class="list-head">
+          <h2>Ειδήσεις <span class="count" id="count"></span></h2>
+          <input type="search" id="list-search" placeholder="Αναζήτηση..." aria-label="Αναζήτηση ειδήσεων">
+        </div>
+        <ul class="news-list" id="news-list"></ul>
+      </section>
+    </div>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>

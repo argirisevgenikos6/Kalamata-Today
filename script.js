@@ -1,42 +1,43 @@
-// Δείγματα ειδήσεων — αντικαταστήστε με πραγματικό περιεχόμενο.
-const news = [
-  { title: "Ανακαινίζεται η παραλιακή οδός Ναυαρίνου", excerpt: "Ξεκινούν οι εργασίες αναβάθμισης του πεζοδρομίου και του ποδηλατόδρομου κατά μήκος της παραλίας.", category: "Τοπικά", time: "πριν 1 ώρα", views: 1520, colors: ["#ff7a00", "#3a1a00"] , image: "images/1.jpg" },
-  { title: "Ρεκόρ αφίξεων στο αεροδρόμιο της Καλαμάτας", excerpt: "Αύξηση της επιβατικής κίνησης καταγράφεται για τη φετινή τουριστική σεζόν.", category: "Οικονομία", time: "πριν 2 ώρες", views: 2310, colors: ["#ffa94d", "#1a1a1a"] , image: "images/2.jpg" },
-  { title: "Νίκη για την Καλαμάτα στο τελευταίο λεπτό", excerpt: "Η Μαύρη Θύελλα πήρε σπουδαίο τρίπωντο μπροστά σε γεμάτες εξέδρες.", category: "Αθλητικά", time: "πριν 3 ώρες", views: 3890, colors: ["#111", "#ff7a00"] , image: "images/3.jpg" },
-  { title: "Διεθνές Φεστιβάλ Χορού: Το πρόγραμμα της χρονιάς", excerpt: "Παραστάσεις από καλλιτέχνες απ' όλο τον κόσμο στο Μέγαρο Χορού Καλαμάτας.", category: "Πολιτισμός", time: "πριν 4 ώρες", views: 980, colors: ["#e06500", "#2b0f00"] , image: "images/4.jpg" },
-  { title: "Συνεδρίαση δημοτικού συμβουλίου για τον προϋπολογισμό", excerpt: "Στο τραπέζι τα έργα υποδομής και οι κοινωνικές δράσεις του δήμου.", category: "Πολιτική", time: "πριν 5 ώρες", views: 740, colors: ["#333", "#ff8c1a"] , image: "images/5.jpg" },
-  { title: "Ηλιοφάνεια και ζέστη το Σαββατοκύριακο στη Μεσσηνία", excerpt: "Θερμοκρασίες έως 28 βαθμούς και ήπιοι άνεμοι σύμφωνα με την πρόγνωση.", category: "Καιρός", time: "πριν 6 ώρες", views: 1260, colors: ["#ffb366", "#ff7a00"] , image: "images/6.jpg" },
-  { title: "Πρώτες βροχές του φθινοπώρου στη Μεσσηνία", excerpt: "Τοπικές μπόρες αναμένονται στα ορεινά του Ταϋγέτου, ενώ στην πόλη ο καιρός θα παραμείνει ήπιος.", category: "Καιρός", time: "πριν 6 ώρες", views: 690, colors: ["#3b3b3b", "#ff9a33"] },
-  { title: "Ήρεμη θάλασσα στον Μεσσηνιακό Κόλπο", excerpt: "Ασθενείς άνεμοι και θερμοκρασία νερού γύρω στους 23 βαθμούς ευνοούν το κολύμπι.", category: "Καιρός", time: "πριν 7 ώρες", views: 510, colors: ["#ff8c1a", "#2b1400"] },
-  { title: "Καλαμάτα ελιά: Αισιοδοξία για τη νέα σοδειά", excerpt: "Οι παραγωγοί αναμένουν καλή χρονιά τόσο σε ποσότητα όσο και σε ποιότητα.", category: "Οικονομία", time: "πριν 7 ώρες", views: 1640, colors: ["#4a3200", "#ff9a33"] , image: "images/7.jpg" },
-  { title: "Νέοι χώροι πρασίνου στο κέντρο της πόλης", excerpt: "Δενδροφυτεύσεις και νέα παιδικά πάρκα στις γειτονιές της Καλαμάτας.", category: "Τοπικά", time: "πριν 8 ώρες", views: 560, colors: ["#1f1f1f", "#ffa94d"] , image: "images/8.jpg" },
-  { title: "Μπάσκετ: Ξεκινά η προετοιμασία της ομάδας", excerpt: "Με νέες μεταγραφές και φιλόδοξους στόχους η νέα αγωνιστική περίοδος.", category: "Αθλητικά", time: "πριν 9 ώρες", views: 870, colors: ["#ff7a00", "#000"] , image: "images/9.jpg" },
-  { title: "Έκθεση φωτογραφίας στο Ιστορικό Κέντρο", excerpt: "Η Καλαμάτα του περασμένου αιώνα μέσα από σπάνιο αρχειακό υλικό.", category: "Πολιτισμός", time: "πριν 10 ώρες", views: 430, colors: ["#2a2a2a", "#e06500"] , image: "images/10.jpg" },
-];
+// Οι ειδήσεις φορτώνονται από το news.json (το επεξεργάζεται η σελίδα admin.html).
+let news = [];
+let breaking = [];
 
-const breaking = [
-  "Κυκλοφοριακές ρυθμίσεις στο κέντρο λόγω έργων",
-  "Ανοιχτή η εγγραφή για τον Μαραθώνιο Καλαμάτας",
-  "Νέα δρομολόγια ΚΤΕΛ προς Αθήνα από τη Δευτέρα",
-  "Διακοπή υδροδότησης αύριο σε περιοχές της πόλης",
-];
+// Προστασία από HTML μέσα στο κείμενο των ειδήσεων
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+// «πριν 2 ώρες», «χθες», «12 Οκτ» από την ημερομηνία δημοσίευσης
+function timeAgo(iso) {
+  const mins = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (mins < 1) return "μόλις τώρα";
+  if (mins < 60) return `πριν ${mins} λεπτ${mins === 1 ? "ό" : "ά"}`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `πριν ${hours} ώρ${hours === 1 ? "α" : "ες"}`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "χθες";
+  if (days < 7) return `πριν ${days} μέρες`;
+  return new Date(iso).toLocaleDateString("el-GR", { day: "numeric", month: "short", year: "numeric" });
+}
 
 // Η φωτογραφία μπαίνει πάνω από το χρώμα· αν λείπει, φαίνεται το χρώμα.
 const bg = (n) => {
-  const gradient = `linear-gradient(135deg, ${n.colors[0]}, ${n.colors[1]})`;
-  return `background-image:${n.image ? `url('${n.image}'), ` : ""}${gradient}`;
+  const colors = n.colors || ["#ff7a00", "#1a1a1a"];
+  const gradient = `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`;
+  return `background-image:${n.image ? `url('${encodeURI(n.image)}'), ` : ""}${gradient}`;
 };
 
 function renderHero() {
+  const hero = document.getElementById("hero");
+  if (!news.length) { hero.innerHTML = ""; return; }
   const [main, ...rest] = news;
   const side = rest.slice(0, 2);
-  document.getElementById("hero").innerHTML = `
+  hero.innerHTML = `
     <article class="hero-main">
       <div class="img" style="${bg(main)}"></div>
       <div class="overlay">
-        <span class="tag">${main.category}</span>
-        <h1>${main.title}</h1>
-        <p>${main.excerpt}</p>
+        <span class="tag">${esc(main.category)}</span>
+        <h1>${esc(main.title)}</h1>
+        <p>${esc(main.excerpt)}</p>
       </div>
     </article>
     <div class="hero-side">
@@ -44,8 +45,8 @@ function renderHero() {
         <article>
           <div class="img" style="${bg(n)}"></div>
           <div class="overlay">
-            <span class="tag">${n.category}</span>
-            <h3>${n.title}</h3>
+            <span class="tag">${esc(n.category)}</span>
+            <h3>${esc(n.title)}</h3>
           </div>
         </article>`).join("")}
     </div>`;
@@ -56,22 +57,22 @@ function renderGrid(items) {
     <article class="card">
       <div class="card-img"><div class="img" style="${bg(n)}"></div></div>
       <div class="card-body">
-        <span class="tag">${n.category}</span>
-        <h3>${n.title}</h3>
-        <p>${n.excerpt}</p>
-        <div class="meta">${n.time} · ${n.views.toLocaleString("el-GR")} προβολές</div>
+        <span class="tag">${esc(n.category)}</span>
+        <h3>${esc(n.title)}</h3>
+        <p>${esc(n.excerpt)}</p>
+        <div class="meta">${timeAgo(n.date)}${n.views ? ` · ${n.views.toLocaleString("el-GR")} προβολές` : ""}</div>
       </div>
     </article>`).join("");
   document.getElementById("empty").hidden = items.length > 0;
 }
 
 function renderPopular() {
-  const top = [...news].sort((a, b) => b.views - a.views).slice(0, 5);
-  document.getElementById("popular").innerHTML = top.map((n) => `<li>${n.title}</li>`).join("");
+  const top = [...news].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
+  document.getElementById("popular").innerHTML = top.map((n) => `<li>${esc(n.title)}</li>`).join("");
 }
 
 function renderTicker() {
-  const items = breaking.map((t) => `<span>${t}</span>`).join("");
+  const items = breaking.map((t) => `<span>${esc(t)}</span>`).join("");
   document.getElementById("ticker").innerHTML = items + items; // διπλό για συνεχή κύλιση
 }
 
@@ -205,7 +206,19 @@ fetch(WEATHER_URL)
       `<p class="weather-status">Ο καιρός δεν είναι διαθέσιμος αυτή τη στιγμή. Δοκιμάστε ξανά σε λίγο.</p>`;
   });
 
-renderHero();
-renderGrid(news);
-renderPopular();
-renderTicker();
+// Φόρτωση ειδήσεων (το ?v= παρακάμπτει την cache ώστε να φαίνονται αμέσως οι νέες)
+fetch(`news.json?v=${Date.now()}`)
+  .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+  .then((data) => {
+    news = (data.news || []).sort((a, b) => new Date(b.date) - new Date(a.date));
+    breaking = data.breaking || [];
+  })
+  .catch(() => {
+    document.getElementById("empty").textContent = "Οι ειδήσεις δεν φόρτωσαν. Ανανεώστε τη σελίδα.";
+  })
+  .finally(() => {
+    renderHero();
+    applyFilters();
+    renderPopular();
+    renderTicker();
+  });
