@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalamata Today | Ειδήσεις από την Καλαμάτα</title>
+  <meta name="description" content="Kalamata Today — Οι ειδήσεις της Καλαμάτας και της Μεσσηνίας, κάθε μέρα.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span id="today-date"></span>
+      <span class="weather">☀️ Καλαμάτα <strong>24°C</strong></span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="#" class="logo">
+        <span class="logo-main">KALAMATA</span><span class="logo-accent">TODAY</span>
+      </a>
+      <button class="menu-toggle" aria-label="Μενού" aria-expanded="false">☰</button>
+      <nav class="nav" id="nav">
+        <a href="#" class="active" data-cat="all">Αρχική</a>
+        <a href="#" data-cat="Τοπικά">Τοπικά</a>
+        <a href="#" data-cat="Πολιτική">Πολιτική</a>
+        <a href="#" data-cat="Οικονομία">Οικονομία</a>
+        <a href="#" data-cat="Αθλητικά">Αθλητικά</a>
+        <a href="#" data-cat="Πολιτισμός">Πολιτισμός</a>
+        <a href="#" data-cat="Καιρός">Καιρός</a>
+      </nav>
+      <div class="search">
+        <input type="search" id="search" placeholder="Αναζήτηση..." aria-label="Αναζήτηση">
+      </div>
+    </div>
+  </header>
+
+  <!-- Breaking news ticker -->
+  <div class="ticker">
+    <div class="container ticker-inner">
+      <span class="ticker-label">ΕΚΤΑΚΤΟ</span>
+      <div class="ticker-track">
+        <div class="ticker-content" id="ticker"></div>
+      </div>
+    </div>
+  </div>
+
+  <main class="container">
+
+    <!-- Hero -->
+    <section class="hero" id="hero"></section>
+
+    <div class="layout">
+      <!-- News feed -->
+      <section>
+        <div class="section-head">
+          <h2 id="feed-title">Τελευταίες Ειδήσεις</h2>
+        </div>
+        <div class="grid" id="news-grid"></div>
+        <p class="empty" id="empty" hidden>Δεν βρέθηκαν ειδήσεις.</p>
+      </section>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="widget">
+          <h3>Πιο Δημοφιλή</h3>
+          <ol class="popular" id="popular"></ol>
+        </div>
+
+        <div class="widget newsletter">
+          <h3>Newsletter</h3>
+          <p>Λάβετε τις σημαντικότερες ειδήσεις της Καλαμάτας στο email σας.</p>
+          <form id="newsletter-form">
+            <input type="email" placeholder="Το email σας" required aria-label="Email">
+            <button type="submit">Εγγραφή</button>
+          </form>
+          <p class="form-msg" id="form-msg" hidden>Ευχαριστούμε για την εγγραφή!</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <a href="#" class="logo">
+          <span class="logo-main">KALAMATA</span><span class="logo-accent">TODAY</span>
+        </a>
+        <p>Οι ειδήσεις της Καλαμάτας και της Μεσσηνίας, κάθε μέρα.</p>
+      </div>
+      <div>
+        <h4>Κατηγορίες</h4>
+        <ul>
+          <li><a href="#">Τοπικά</a></li>
+          <li><a href="#">Πολιτική</a></li>
+          <li><a href="#">Αθλητικά</a></li>
+          <li><a href="#">Πολιτισμός</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Επικοινωνία</h4>
+        <ul>
+          <li><a href="mailto:info@kalamatatoday.gr">info@kalamatatoday.gr</a></li>
+          <li>Καλαμάτα, Μεσσηνία</li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">© <span id="year"></span> Kalamata Today. Με επιφύλαξη παντός δικαιώματος.</div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
