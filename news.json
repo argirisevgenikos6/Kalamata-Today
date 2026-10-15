@@ -71,7 +71,8 @@
         "#333",
         "#ff8c1a"
       ],
-      "image": "images/5.jpg"
+      "image": "images/5.jpg",
+      "featured": 1
     },
     {
       "id": "1792047599995",
